@@ -6,6 +6,9 @@ readme = "README.md"
 requires-python = ">=3.14.0"
 dependencies = [
     "fastapi>=0.119.1",
+    "google-cloud-dialogflow-cx>=1.43.0",
+    "google-genai>=1.46.0",
+    "httpx>=0.28.1",
     "python-dotenv>=1.1.1",
     "uvicorn>=0.38.0",
 ]
