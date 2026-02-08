@@ -21,6 +21,9 @@ CA_PROJECT_ID = os.getenv("CA_PROJECT_ID")
 CA_AGENT_ID = os.getenv("CA_AGENT_ID")
 CA_LOCATION = os.getenv("CA_LOCATION")
 
+# Redis configuration
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
 
 def get_gcp_credentials_dict() -> dict | None:
     """
