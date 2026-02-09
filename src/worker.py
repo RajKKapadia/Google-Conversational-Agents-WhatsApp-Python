@@ -94,13 +94,27 @@ async def _handle_image(sender: str, content_data: dict, message_id: str) -> Non
     logger.info(f"Image message from {sender}: media_id={content.id}, caption={content.caption}")
 
     whatsapp_client = get_whatsapp_client()
+    await whatsapp_client.send_text_message(sender, "Reading image...")
+
     image_data, mime_type = await whatsapp_client.download_media(content.id)
 
     gemini_client = get_gemini_client()
     summary = await gemini_client.process_image(image_data, mime_type, content.caption)
+    logger.info(f"Image summarized by Gemini, forwarding to CA for {sender}")
 
-    await whatsapp_client.send_text_message(sender, f"\U0001f4f8 Image Analysis:\n\n{summary}")
-    logger.info(f"Image processed and response sent to {sender}")
+    ca_client = get_ca_client()
+    result = await ca_client.detect_intent(text=summary, user_id=sender)
+
+    response_text = result["response_text"]
+    if not response_text:
+        logger.warning(
+            f"No response from CA for image - Intent: {result['intent']}, "
+            f"Confidence: {result['confidence']}, Match Type: {result['match_type']}"
+        )
+        response_text = "I'm not sure how to help with that. Could you please rephrase?"
+
+    await whatsapp_client.send_text_message(sender, response_text)
+    logger.info(f"Image processed via CA and response sent to {sender}")
 
 
 async def _handle_document(sender: str, content_data: dict, message_id: str) -> None:
@@ -112,16 +126,27 @@ async def _handle_document(sender: str, content_data: dict, message_id: str) -> 
     )
 
     whatsapp_client = get_whatsapp_client()
+    await whatsapp_client.send_text_message(sender, "Reading document...")
+
     document_data, mime_type = await whatsapp_client.download_media(content.id)
 
     gemini_client = get_gemini_client()
     summary = await gemini_client.process_document(document_data, mime_type, content.filename)
+    logger.info(f"Document summarized by Gemini, forwarding to CA for {sender}")
 
-    response_message = f"\U0001f4c4 Document Summary:\n\n{summary}"
-    if content.filename:
-        response_message = f"\U0001f4c4 Document Summary ({content.filename}):\n\n{summary}"
-    await whatsapp_client.send_text_message(sender, response_message)
-    logger.info(f"Document processed and response sent to {sender}")
+    ca_client = get_ca_client()
+    result = await ca_client.detect_intent(text=summary, user_id=sender)
+
+    response_text = result["response_text"]
+    if not response_text:
+        logger.warning(
+            f"No response from CA for document - Intent: {result['intent']}, "
+            f"Confidence: {result['confidence']}, Match Type: {result['match_type']}"
+        )
+        response_text = "I'm not sure how to help with that. Could you please rephrase?"
+
+    await whatsapp_client.send_text_message(sender, response_text)
+    logger.info(f"Document processed via CA and response sent to {sender}")
 
 
 async def _handle_audio(sender: str, content_data: dict, message_id: str) -> None:
@@ -130,13 +155,27 @@ async def _handle_audio(sender: str, content_data: dict, message_id: str) -> Non
     logger.info(f"Audio message from {sender}: media_id={content.id}, mime_type={content.mime_type}")
 
     whatsapp_client = get_whatsapp_client()
+    await whatsapp_client.send_text_message(sender, "Listening to audio...")
+
     audio_data, mime_type = await whatsapp_client.download_media(content.id)
 
     gemini_client = get_gemini_client()
     transcription = await gemini_client.process_audio(audio_data, mime_type)
+    logger.info(f"Audio transcribed by Gemini, forwarding to CA for {sender}")
 
-    await whatsapp_client.send_text_message(sender, f"\U0001f3a4 Audio Transcription:\n\n{transcription}")
-    logger.info(f"Audio processed and response sent to {sender}")
+    ca_client = get_ca_client()
+    result = await ca_client.detect_intent(text=transcription, user_id=sender)
+
+    response_text = result["response_text"]
+    if not response_text:
+        logger.warning(
+            f"No response from CA for audio - Intent: {result['intent']}, "
+            f"Confidence: {result['confidence']}, Match Type: {result['match_type']}"
+        )
+        response_text = "I'm not sure how to help with that. Could you please rephrase?"
+
+    await whatsapp_client.send_text_message(sender, response_text)
+    logger.info(f"Audio processed via CA and response sent to {sender}")
 
 
 async def _handle_video(sender: str, content_data: dict, message_id: str) -> None:

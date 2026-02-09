@@ -22,7 +22,7 @@ class GeminiClient:
             raise ValueError("GEMINI_API_KEY is not set in environment variables")
 
         self.client = genai.Client(api_key=GEMINI_API_KEY)
-        self.model_id = "gemini-2.0-flash-exp"
+        self.model_id = "gemini-2.5-flash"
         logger.info(f"Gemini client initialized with model: {self.model_id}")
 
     async def process_image(
