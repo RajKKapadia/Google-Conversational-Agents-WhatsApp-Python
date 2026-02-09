@@ -42,9 +42,7 @@ Meta Cloud API ──POST /webhook──▶ FastAPI
 
 ## Prerequisites
 
-- Python 3.14+
-- [uv](https://docs.astral.sh/uv/) package manager
-- Redis server
+- Python 3.14+ and [uv](https://docs.astral.sh/uv/), **or** Docker
 - Meta WhatsApp Business API app (App Secret, Access Token, Phone ID)
 - Google Cloud project with Dialogflow CX agent
 - Gemini API key
@@ -81,15 +79,25 @@ Meta Cloud API ──POST /webhook──▶ FastAPI
    | `GEMINI_API_KEY` | Google Gemini API key |
    | `REDIS_URL` | Redis connection URL (default: `redis://localhost:6379/0`) |
 
-3. **Start Redis**
-
-   ```bash
-   docker run -d --name redis -p 6379:6379 redis:7-alpine
-   ```
-
 ## Running
 
-You need three processes running:
+### Docker Compose (recommended)
+
+```bash
+docker compose up --build
+```
+
+This starts all three services (FastAPI server, ARQ worker, Redis) in one command. The app is available at `http://localhost:8080`.
+
+### Local development
+
+Start a Redis instance:
+
+```bash
+docker run -d --name redis -p 6379:6379 redis:7-alpine
+```
+
+Then run the server and worker in separate terminals:
 
 ```bash
 # Terminal 1 — FastAPI server
@@ -115,6 +123,8 @@ The FastAPI server starts on `http://127.0.0.1:8080` by default.
 ```
 ├── run.py              # FastAPI server entrypoint
 ├── run_worker.py       # ARQ worker entrypoint
+├── Dockerfile
+├── docker-compose.yml
 ├── pyproject.toml
 ├── .env.example
 └── src/
